@@ -2,6 +2,7 @@ package vrule
 
 import (
 	"errors"
+	"github.com/shopspring/decimal"
 	"github.com/tidwall/gjson"
 	"strconv"
 	"strings"
@@ -13,14 +14,15 @@ type checkFunc func(ruleTagInfo *RuleTag, gRes gjson.Result) bool
 var lk sync.Mutex
 var BakedInValidators = map[string]checkFunc{
 	"required": CkRequired, // 是否存在该字段
-	"number":   CkNumber,   // number  // 校验 [1,"1"]
+	"number":   CkNumber,   // number  // 字符串1解析
 	"integer":  CkInteger,
+	"gte":      CkGte,
 }
 
 type RuleTag struct {
 	FieldKey string
-	Tag      string // gt
-	Value    string // gt->value
+	TagKey   string // gt
+	TagValue string // gt->value
 }
 
 // gt:1
@@ -28,15 +30,15 @@ type RuleTag struct {
 // return {tag:gt,value:1}
 func ParseRuleTag(info string) *RuleTag {
 	result := &RuleTag{
-		Tag:   info,
-		Value: "",
+		TagKey:   info,
+		TagValue: "",
 	}
 	firstIndex := strings.Index(info, ":")
 	if firstIndex < 0 {
 		return result
 	}
-	result.Tag = info[:firstIndex]
-	result.Value = info[firstIndex+1:]
+	result.TagKey = info[:firstIndex]
+	result.TagValue = info[firstIndex+1:]
 	return result
 }
 
@@ -55,27 +57,63 @@ func CkRequired(ruleTagInfo *RuleTag, gRes gjson.Result) bool {
 
 // key存在则校验
 func CkNumber(ruleTagInfo *RuleTag, gRes gjson.Result) bool {
-	_, err := strconv.ParseInt(gRes.Get(ruleTagInfo.Tag).String(), 10, 64)
+	_, err := strconv.ParseInt(gRes.Get(ruleTagInfo.TagKey).String(), 10, 64)
 	return err == nil
 }
 
 func CkInteger(ruleTagInfo *RuleTag, gRes gjson.Result) bool {
 	val := gRes.Get(ruleTagInfo.FieldKey)
-	// 如果有. 则表示是 float
-	if strings.Contains(val.Raw, ".") {
+	if val.Type != gjson.Number {
 		return false
 	}
-	return val.Type == gjson.Number
+	// 如果有. 则表示是 float
+	return !strings.Contains(val.Raw, ".")
 }
 
-func CkEgt(ruleTagInfo *RuleTag, gRes gjson.Result) bool {
+func CkGte(ruleTagInfo *RuleTag, gRes gjson.Result) bool {
 	val := gRes.Get(ruleTagInfo.FieldKey)
-	// 如果有. 则表示是 float
-	// 数字 999 123456
-	// 字符串 999 123456
-	// 字符串和 数字的比较性质完全不一样
-	if strings.Contains(val.Raw, ".") {
-		return false
+	v1 := val.String()
+	v2 := ruleTagInfo.TagValue
+	switch {
+	case val.Type == gjson.Number: // number比较大小
+		return compareNumber(v1, ">=", v2)
 	}
-	return val.Type == gjson.Number
+	return compareStr(v1, ">=", v2)
+}
+
+func compareNumber(v1 string, op, v2 string) bool {
+	d1, _ := decimal.NewFromString(v1)
+	d2, _ := decimal.NewFromString(v2)
+	opRes := d1.Compare(d2)
+	switch op {
+	case ">", "gt":
+		return opRes > 0
+	case "<", "lt":
+		return opRes > 0
+	case ">=", "gte":
+		return opRes >= 0
+	case "<=", "lte":
+		return opRes <= 0
+	case "ne", "neq":
+		return opRes != 0
+	default: // eq
+		return opRes == 0
+	}
+}
+
+func compareStr(v1, op, v2 string) bool {
+	switch op {
+	case ">", "gt":
+		return v1 > v2
+	case "<", "lt":
+		return v1 < v2
+	case ">=", "gte":
+		return v1 >= v2
+	case "<=", "lte":
+		return v1 <= v2
+	case "!=", "ne", "neq":
+		return v1 != v2
+	default: // eq
+		return v1 == v2
+	}
 }

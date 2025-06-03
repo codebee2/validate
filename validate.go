@@ -80,14 +80,16 @@ func (own *Validator) Check() bool {
 			// // required|in:1,2,3,4
 			// required|between:1,2,3
 			ruleTag := vrule.ParseRuleTag(rule)
-			validatorsFn, ok := vrule.BakedInValidators[ruleTag.Tag]
+			ruleTag.FieldKey = field
+			validatorsFn, ok := vrule.BakedInValidators[ruleTag.TagKey]
 			if !ok {
-				own.validatorErrors.Add(field, ruleTag.Tag, "无效校验器")
+				own.validatorErrors.Add(field, ruleTag.TagKey, "无效校验器")
 				return false
 			}
 			if !validatorsFn(ruleTag, gjRes) {
-				msgKey := fmt.Sprintf(field + "." + ruleTag.Tag)
+				msgKey := fmt.Sprintf(field + "." + ruleTag.TagKey)
 				own.validatorErrors.Add(field, msgKey, own.validatorMsg[msgKey])
+				return false
 			}
 		}
 	}
