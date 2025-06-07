@@ -7,17 +7,16 @@ import (
 
 func Test_Rule(t *testing.T) {
 	// 给你一个json数据
-	data := `{"id":10}`
+	data := `{"id":10,"data":{"b":1}}`
 
 	vvv := NewValidator(data)
 	vvv.AddRules(MS{
-		"id": "required|integer|gte:10",
+		"id":     "required|integer|gte:10",
+		"data.a": "required|integer|gte:10",
 	})
 	vvv.AddMsg(MS{
-		"id.required": "id是必须的",
-		"id.integer":  "id必须是数字",
-		"id.gte":      "id必须大于10",
+		"data.a.required": "data.a是必须的",
 	})
-	fmt.Println(vvv.Check())
+	fmt.Println(vvv.Validate())
 	fmt.Println(vvv.GetErrorOne())
 }

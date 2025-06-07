@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/codebee2/validate/vrule"
+	"github.com/codebee2/validate/vrule/check"
 	"github.com/tidwall/gjson"
 	"strings"
 )
@@ -19,11 +20,11 @@ type MS map[string]string
 type ErrorsField map[string]MS
 
 // Add 添加error
-func (ef ErrorsField) Add(field, validator, message string) {
-	if _, ok := ef[field]; ok {
-		ef[field][validator] = message
+func (own ErrorsField) Add(field, validator, message string) {
+	if _, ok := own[field]; ok {
+		own[field][validator] = message
 	} else {
-		ef[field] = MS{validator: message}
+		own[field] = MS{validator: message}
 	}
 }
 
@@ -32,7 +33,8 @@ type Validator struct {
 	validatorRule   MS           // 规则
 	validatorMsg    MS           //错误消息
 	parseRes        gjson.Result // sourceData解析结果
-	validatorErrors ErrorsField  // 错误信息
+	RuleList        []check.IRuleCheck
+	validatorErrors ErrorsField // 错误信息
 }
 
 func (own *Validator) GetErrorOne() string {
@@ -72,23 +74,29 @@ func NewValidator(data string) *Validator {
 	}
 }
 
-func (own *Validator) Check() bool {
+func (own *Validator) Validate() bool {
 	gjRes := gjson.ParseBytes(own.sourceData)
+	var fieldVal gjson.Result
 	for field, rules := range own.validatorRule {
+		fieldVal = gjRes.Get(field)
 		for _, rule := range strings.Split(rules, "|") {
-			// required|gte:5
-			// // required|in:1,2,3,4
-			// required|between:1,2,3
 			ruleTag := vrule.ParseRuleTag(rule)
 			ruleTag.FieldKey = field
-			validatorsFn, ok := vrule.BakedInValidators[ruleTag.TagKey]
+			ruleCheck, ok := vrule.TagValidators[ruleTag.TagKey]
 			if !ok {
-				own.validatorErrors.Add(field, ruleTag.TagKey, "无效校验器")
+				own.validatorErrors.Add(field, ruleTag.TagKey, "invalid validator")
 				return false
 			}
-			if !validatorsFn(ruleTag, gjRes) {
+			if !ruleCheck.Check(ruleTag, fieldVal) {
 				msgKey := fmt.Sprintf(field + "." + ruleTag.TagKey)
-				own.validatorErrors.Add(field, msgKey, own.validatorMsg[msgKey])
+				fmt.Println(msgKey, "======")
+				errorMsg := ""
+				if _, msgOk := own.validatorMsg[msgKey]; msgOk {
+					errorMsg = own.validatorMsg[msgKey]
+				} else {
+					errorMsg = ruleCheck.CheckMsg(ruleTag)
+				}
+				own.validatorErrors.Add(field, msgKey, errorMsg)
 				return false
 			}
 		}
