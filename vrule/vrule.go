@@ -18,6 +18,7 @@ var TagValidators = map[string]check.IRuleCheck{
 	check.RuleTagLte:      &check.CheckLte{},
 	check.RuleTagEq:       &check.CheckEq{},
 	check.RuleTagNeq:      &check.CheckNeq{},
+	check.RuleTagBetween:  &check.CheckBetween{},
 }
 
 // gt:1

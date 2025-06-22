@@ -89,7 +89,6 @@ func (own *Validator) Validate() bool {
 			}
 			if !ruleCheck.Check(ruleTag, fieldVal) {
 				msgKey := fmt.Sprintf(field + "." + ruleTag.TagKey)
-				fmt.Println(msgKey, "======")
 				errorMsg := ""
 				if _, msgOk := own.validatorMsg[msgKey]; msgOk {
 					errorMsg = own.validatorMsg[msgKey]

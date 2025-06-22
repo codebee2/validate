@@ -14,6 +14,9 @@ const (
 	RuleTagLte      = "lte"      // lte:1
 	RuleTagEq       = "eq"       // eq:1
 	RuleTagNeq      = "neq"      // neq:1
+	RuleTagIn       = "in"       // in:1,2,3
+	RuleTagBetween  = "between"  // between:1,3
+	RuleTagLength   = "length"   // length:1
 )
 
 // 内置message
@@ -25,8 +28,11 @@ var builtinMessages = map[string]string{
 	RuleTagGte:      "{field} value should be greater or equal to the field %s",
 	RuleTagLt:       "{field} value should be less than the field %s",
 	RuleTagLte:      "{field} value should be less than or equal to the field %s",
+	RuleTagIn:       "",
 	RuleTagEq:       "{field} value must be equal the field %s",
 	RuleTagNeq:      "{field} value cannot be equal to the field %s",
+	RuleTagBetween:  "{field} value must between %s",
+	RuleTagLength:   "",
 }
 
 type RuleTag struct {
