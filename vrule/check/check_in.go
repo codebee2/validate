@@ -1,19 +1,21 @@
 package check
 
 import (
-	"github.com/tidwall/gjson"
 	"strings"
+
+	"github.com/tidwall/gjson"
 )
 
 type CheckIn struct{}
 
 func (own *CheckIn) Check(ruleTagInfo *RuleTag, fieldVal gjson.Result) bool {
-	switch fieldVal.Type {
-	case gjson.Number:
-		//ruleTagInfo.TagValue
-	case gjson.String:
+	values := strings.Split(ruleTagInfo.TagValue, ",")
+	val := fieldVal.String()
+	for _, v := range values {
+		if val == v {
+			return true
+		}
 	}
-
 	return false
 }
 

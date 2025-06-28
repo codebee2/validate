@@ -3,10 +3,11 @@ package validate
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/codebee2/validate/vrule"
 	"github.com/codebee2/validate/vrule/check"
 	"github.com/tidwall/gjson"
-	"strings"
 )
 
 type MS map[string]string
