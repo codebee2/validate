@@ -8,6 +8,7 @@ const (
 	RuleTagRequired = "required" //
 	RuleTagStrNum   = "strNum"   //
 	RuleTagInteger  = "integer"  //
+	RuleTagFloat    = "float"    //
 	RuleTagGt       = "gt"       // gt:1
 	RuleTagGte      = "gte"      // gte:1
 	RuleTagLt       = "lt"       // lt:1
@@ -31,6 +32,7 @@ var builtinMessages = map[string]string{
 	RuleTagRequired: "{field} is required to not be empty",
 	RuleTagStrNum:   "{field} value must be an string number",
 	RuleTagInteger:  "{field} value must be an integer",
+	RuleTagFloat:    "{field} value must be a float number",
 	RuleTagGt:       "{field} value must be greater than the field %s",
 	RuleTagGte:      "{field} value should be greater or equal to the field %s",
 	RuleTagLt:       "{field} value should be less than the field %s",

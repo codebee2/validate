@@ -2,23 +2,38 @@ package vrule
 
 import (
 	"errors"
-	"github.com/codebee2/validate/vrule/check"
 	"strings"
 	"sync"
+
+	"github.com/codebee2/validate/vrule/check"
 )
 
 var lk sync.Mutex
 var TagValidators = map[string]check.IRuleCheck{
-	check.RuleTagRequired: &check.CheckNeq{},     // is existing field
-	check.RuleTagStrNum:   &check.CheckStrNum{},  // str number
-	check.RuleTagInteger:  &check.CheckInteger{}, // integer
-	check.RuleTagGt:       &check.CheckGt{},
-	check.RuleTagGte:      &check.CheckGte{},
-	check.RuleTagLt:       &check.CheckLte{},
-	check.RuleTagLte:      &check.CheckLte{},
-	check.RuleTagEq:       &check.CheckEq{},
-	check.RuleTagNeq:      &check.CheckNeq{},
-	check.RuleTagBetween:  &check.CheckBetween{},
+	// required
+	check.RuleTagRequired: &check.CheckRequired{}, // is existing field
+	// type
+	check.RuleTagStrNum:  &check.CheckStrNum{},  // str number
+	check.RuleTagInteger: &check.CheckInteger{}, // integer
+	// compare
+	check.RuleTagBetween: &check.CheckBetween{},
+	check.RuleTagGt:      &check.CheckGt{},
+	check.RuleTagGte:     &check.CheckGte{},
+	check.RuleTagLt:      &check.CheckLte{},
+	check.RuleTagLte:     &check.CheckLte{},
+	check.RuleTagEq:      &check.CheckEq{},
+	check.RuleTagNeq:     &check.CheckNeq{},
+	check.RuleTagIn:      &check.CheckIn{},
+	check.RuleTagLength:  &check.CheckLength{},
+	check.RuleTagMin:     &check.CheckMin{},
+	check.RuleTagMax:     &check.CheckMax{},
+
+	// other
+	check.RuleTagDate:   &check.CheckDate{},
+	check.RuleTagEmail:  &check.CheckEmail{},
+	check.RuleTagPhone:  &check.CheckPhone{},
+	check.RuleTagTime:   &check.CheckTime{},
+	check.RuleTagUnique: &check.CheckUnique{},
 }
 
 // gt:1
