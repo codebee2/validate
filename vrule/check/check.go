@@ -6,6 +6,7 @@ import (
 
 const (
 	RuleTagRequired = "required" //
+	RuleTagNotEmpty = "notEmpty" // notEmpty
 	RuleTagStrNum   = "strNum"   //
 	RuleTagInteger  = "integer"  //
 	RuleTagFloat    = "float"    //
@@ -30,6 +31,7 @@ const (
 // 内置message
 var builtinMessages = map[string]string{
 	RuleTagRequired: "{field} is required to not be empty",
+	RuleTagNotEmpty: "{field} cannot be empty",
 	RuleTagStrNum:   "{field} value must be an string number",
 	RuleTagInteger:  "{field} value must be an integer",
 	RuleTagFloat:    "{field} value must be a float number",

@@ -1,8 +1,9 @@
 package check
 
 import (
-	"github.com/tidwall/gjson"
 	"strings"
+
+	"github.com/tidwall/gjson"
 )
 
 type CheckRequired struct{}

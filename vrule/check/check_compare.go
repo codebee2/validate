@@ -2,9 +2,10 @@ package check
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/shopspring/decimal"
 	"github.com/tidwall/gjson"
-	"strings"
 )
 
 type CheckGt struct{}
@@ -64,7 +65,7 @@ func (own *CheckEq) CheckMsg(ruleTagInfo *RuleTag) string {
 	return getCompareMsg(own.Tag(), ruleTagInfo)
 }
 func (own *CheckEq) Tag() string {
-	return RuleTagNeq
+	return RuleTagEq
 }
 
 type CheckNeq struct{}
